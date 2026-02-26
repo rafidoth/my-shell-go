@@ -25,6 +25,6 @@ func main() {
 			break
 		}
 
-		fmt.Printf("%v: command not found\n", command[:len(command)-1])
+		fmt.Printf("%v: command not found\n", command[:len(command)])
 	}
 }
