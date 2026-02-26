@@ -30,14 +30,32 @@ func main() {
 
 		command = strings.TrimSpace(command)
 		commandWithExtractedArgs := extractArguments(command)
+		primary := commandWithExtractedArgs[0]
+		args := commandWithExtractedArgs[1:]
 
 		if command == "exit" {
 			break
-		} else if commandWithExtractedArgs[0] == "echo" {
-			fmt.Println(strings.Join(commandWithExtractedArgs[1:], " "))
+		} else if primary == "echo" {
+			fmt.Println(strings.Join(args, " "))
+		} else if primary == "type" {
+			if len(args) == 0 {
+				fmt.Println("no arguments")
+				continue
+			}
+			builtins := [...]string{"type", "exit", "echo"}
+			matched := false
+			for _, val := range builtins {
+				if val == args[0] {
+					fmt.Println(args[0], "is a shell builtin")
+					matched = true
+					break
+				}
+			}
+			if !matched {
+				fmt.Printf("%v: not found\n", args[0])
+			}
 		} else {
 			fmt.Printf("%v: command not found\n", command)
 		}
-
 	}
 }
