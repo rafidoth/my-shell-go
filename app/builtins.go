@@ -31,7 +31,6 @@ func Type(arg string) {
 
 func Echo(args ...string) {
 	output := strings.Join(args, " ")
-	output = strings.ReplaceAll(output, "'", "")
 	fmt.Println(output)
 }
 
