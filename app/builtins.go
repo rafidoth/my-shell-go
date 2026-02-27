@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var builtins = [...]string{"type", "exit", "echo"}
+var builtins = [...]string{"type", "exit", "echo", "pwd"}
 
 func Type(arg string) {
 	matched := false
