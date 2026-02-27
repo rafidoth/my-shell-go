@@ -64,10 +64,18 @@ func parseCommand(input string) []string {
 
 func execute(primary string, args []string) {
 	redirectIndex := -1
-	if idx := slices.Index(args, ">"); idx != -1 {
+	isStderrRedirect := false
+	isStdoutRedirect := false
+
+	if idx := slices.Index(args, "2>"); idx != -1 {
 		redirectIndex = idx
+		isStderrRedirect = true
+	} else if idx := slices.Index(args, ">"); idx != -1 {
+		redirectIndex = idx
+		isStdoutRedirect = true
 	} else if idx := slices.Index(args, "1>"); idx != -1 {
 		redirectIndex = idx
+		isStdoutRedirect = true
 	}
 
 	var outFile *os.File
@@ -88,13 +96,16 @@ func execute(primary string, args []string) {
 
 	cmd := exec.Command(primary, args...)
 
-	if outFile != nil {
-		cmd.Stdout = outFile
-	} else {
-		cmd.Stdout = os.Stdout
-	}
-
+	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
+	if outFile != nil {
+		if isStdoutRedirect {
+			cmd.Stdout = outFile
+		} else if isStderrRedirect {
+			cmd.Stderr = outFile
+		}
+	}
 
 	if runErr := cmd.Run(); runErr != nil {
 		if _, pathErr := exec.LookPath(primary); pathErr != nil {
