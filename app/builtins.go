@@ -42,10 +42,17 @@ func Pwd() {
 	}
 }
 
-func Cd(dir string) {
+func Cd(arg string) {
+	dir := arg
+	if dir == "~" {
+		userHome, err := os.UserHomeDir()
+		if err != nil {
+			fmt.Println("error :", err)
+		}
+		dir = userHome
+	}
 	err := os.Chdir(dir)
 	if err != nil {
 		fmt.Printf("cd: %v: No such file or directory\n", dir)
 	}
-	//it just work for relative also
 }
