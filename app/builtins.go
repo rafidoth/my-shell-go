@@ -46,14 +46,20 @@ func Echo(args ...string) {
 	if redirectIndex != -1 && redirectIndex+1 < len(args) {
 		filename := args[redirectIndex+1]
 		output := strings.Join(args[:redirectIndex], " ") + "\n"
-		// fmt.Println(filename, output)
-		err := os.WriteFile(filename, []byte(output), 0644)
-		if err != nil {
-			fmt.Println("Error writing to file:", err)
-			return
-		}
 		if isStderrRedirect {
 			fmt.Print(output)
+			err := os.WriteFile(filename, []byte(""), 0644)
+			if err != nil {
+				fmt.Println("Error writing to file:", err)
+				return
+			}
+
+		} else {
+			err := os.WriteFile(filename, []byte(output), 0644)
+			if err != nil {
+				fmt.Println("Error writing to file:", err)
+				return
+			}
 		}
 	} else {
 		output := strings.Join(args, " ")
