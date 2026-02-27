@@ -6,8 +6,6 @@ import (
 	"log"
 	"os"
 	"strings"
-
-	"github.com/codecrafters-io/shell-starter-go/app/builtin"
 )
 
 func main() {
@@ -31,15 +29,15 @@ func main() {
 		if command == "exit" {
 			break
 		} else if primary == "echo" {
-			builtin.Echo(args...)
+			Echo(args...)
 		} else if primary == "type" {
 			if len(args) == 0 {
 				fmt.Println("no arguments")
 				continue
 			}
-			builtin.Type(args[0])
+			Type(args[0])
 		} else if primary == "pwd" {
-			builtin.Pwd()
+			Pwd()
 		} else {
 			execute(primary, args)
 		}
