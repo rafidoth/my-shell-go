@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 )
 
@@ -30,9 +31,27 @@ func Type(arg string) {
 }
 
 func Echo(args ...string) {
-	output := strings.Join(args, " ")
-	// output = strings.ReplaceAll(output, "'", "")
-	fmt.Println(output)
+	redirectIndex := -1
+	if idx := slices.Index(args, ">"); idx != -1 {
+		redirectIndex = idx
+	} else if idx := slices.Index(args, "1>"); idx != -1 {
+		redirectIndex = idx
+	}
+
+	if redirectIndex != -1 && redirectIndex+1 < len(args) {
+		filename := args[redirectIndex+1]
+		output := strings.Join(args[:redirectIndex], " ")
+		// fmt.Println(filename, output)
+		err := os.WriteFile(filename, []byte(output), 0644)
+		if err != nil {
+			fmt.Println("Error writing to file:", err)
+			return
+		}
+	} else {
+		output := strings.Join(args, " ")
+		fmt.Println(output)
+	}
+
 }
 
 func Pwd() {
