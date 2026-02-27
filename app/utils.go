@@ -11,10 +11,57 @@ import (
 func extractArguments(wholeCommand string) []string {
 	// s := singleQuoteHandler(wholeCommand)
 	// fmt.Println(s)
-	d := doubleQuoteHandler(wholeCommand)
+	// d := doubleQuoteHandler(wholeCommand)
 	// fmt.Println(d)
-	splitted := commandParser(d)
+	splitted := parseCommand(wholeCommand)
 	return splitted
+}
+func parseCommand(input string) []string {
+	var parsed []string
+	var builder strings.Builder
+
+	singleQuote := false
+	doubleQuote := false
+	escaped := false
+
+	input = strings.TrimSpace(input)
+
+	for _, r := range input {
+		if escaped {
+			builder.WriteRune(r)
+			escaped = false
+			continue
+		}
+
+		switch {
+		case r == '\\' && !singleQuote:
+			escaped = true
+
+		case r == '"' && !singleQuote:
+			doubleQuote = !doubleQuote
+
+		case r == '\'' && !doubleQuote:
+			singleQuote = !singleQuote
+
+		case unicode.IsSpace(r) && !singleQuote && !doubleQuote:
+			if builder.Len() > 0 {
+				parsed = append(parsed, builder.String())
+				builder.Reset()
+			}
+
+		default:
+			builder.WriteRune(r)
+		}
+	}
+
+	if escaped {
+		builder.WriteRune('\\')
+	}
+	if builder.Len() > 0 {
+		parsed = append(parsed, builder.String())
+	}
+
+	return parsed
 }
 
 func commandParser(quoteHandled string) []string {
@@ -48,61 +95,36 @@ func commandParser(quoteHandled string) []string {
 
 func doubleQuoteHandler(wholeCommand string) string {
 	var builder strings.Builder
-	insideQuotes := false
 	singleQuote := false
-	dobleQuote := false
+	doubleQuote := false
 	lastRuneWasSpace := false
+	escaped := false
+
 	input := strings.TrimSpace(wholeCommand)
 	for _, r := range input {
+		if escaped {
+			builder.WriteRune(r)
+			escaped = false
+			lastRuneWasSpace = false
+			continue
+		}
+
 		switch {
+		case r == '\\' && !singleQuote:
+			escaped = true
+
 		case r == '"' && !singleQuote:
-			insideQuotes = !insideQuotes
-			dobleQuote = !dobleQuote
+			doubleQuote = !doubleQuote
 			builder.WriteRune(r)
 			lastRuneWasSpace = false
-		case r == '\'' && !dobleQuote:
-			insideQuotes = !insideQuotes
+
+		case r == '\'' && !doubleQuote:
 			singleQuote = !singleQuote
 			builder.WriteRune(r)
 			lastRuneWasSpace = false
-		case unicode.IsSpace(r):
-			if insideQuotes {
-				builder.WriteRune(r)
-			} else {
-				if lastRuneWasSpace {
-					continue
-				} else {
-					builder.WriteRune(r)
-					lastRuneWasSpace = true
-				}
-			}
-		default:
-			builder.WriteRune(r)
-			lastRuneWasSpace = false
-		}
-	}
-	return builder.String()
-}
-func singleQuoteHandler(wholeCommand string) string {
-	var builder strings.Builder
-	insideQuotes := false
-	lastRuneWasSpace := false
 
-	input := strings.TrimSpace(wholeCommand)
-	// echo 'hello    world'
-	// echo     'hello world'
-	// echo     'hello       world'
-	//
-	// echo 'hello
-	// echo hello world
-	for _, r := range input {
-		switch {
-		case r == '\'':
-			insideQuotes = !insideQuotes
-			builder.WriteRune(r)
-			lastRuneWasSpace = false
 		case unicode.IsSpace(r):
-			if insideQuotes {
+			if singleQuote || doubleQuote {
 				builder.WriteRune(r)
 			} else {
 				if lastRuneWasSpace {
@@ -112,11 +134,17 @@ func singleQuoteHandler(wholeCommand string) string {
 					lastRuneWasSpace = true
 				}
 			}
+
 		default:
 			builder.WriteRune(r)
 			lastRuneWasSpace = false
 		}
 	}
+
+	if escaped {
+		builder.WriteRune('\\')
+	}
+
 	return builder.String()
 }
 
