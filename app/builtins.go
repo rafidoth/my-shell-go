@@ -47,4 +47,5 @@ func Cd(dir string) {
 	if err != nil {
 		fmt.Printf("cd: %v: No such file or directory\n", dir)
 	}
+	//it just work for relative also
 }
