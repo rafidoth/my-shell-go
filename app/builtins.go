@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var builtins = [...]string{"type", "exit", "echo", "pwd"}
+var builtins = [...]string{"type", "exit", "echo", "pwd", "cd"}
 
 func Type(arg string) {
 	matched := false
@@ -39,5 +39,12 @@ func Pwd() {
 		fmt.Println(err)
 	} else {
 		fmt.Println(dir)
+	}
+}
+
+func Cd(dir string) {
+	err := os.Chdir(dir)
+	if err != nil {
+		fmt.Println("cd:", dir, ": No such file or directory")
 	}
 }

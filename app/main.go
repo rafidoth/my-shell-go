@@ -38,6 +38,8 @@ func main() {
 			Type(args[0])
 		} else if primary == "pwd" {
 			Pwd()
+		} else if primary == "cd" {
+			Cd(args[0])
 		} else {
 			execute(primary, args)
 		}
