@@ -30,7 +30,9 @@ func Type(arg string) {
 }
 
 func Echo(args ...string) {
-	fmt.Println(strings.Join(args, " "))
+	output := strings.Join(args, " ")
+	output = strings.ReplaceAll(output, "'", "")
+	fmt.Println(output)
 }
 
 func Pwd() {

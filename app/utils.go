@@ -4,10 +4,49 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"unicode"
 )
 
 func extractArguments(wholeCommand string) []string {
-	return strings.Split(wholeCommand, " ")
+
+	return strings.Split(singleQuoteHandler(wholeCommand), " ")
+}
+
+func singleQuoteHandler(wholeCommand string) string {
+	var builder strings.Builder
+	insideQuotes := false
+	lastRuneWasSpace := false
+
+	input := strings.TrimSpace(wholeCommand)
+	// echo 'hello    world'
+	// echo     'hello world'
+	// echo     'hello       world'
+	//
+	// echo 'hello
+	// echo hello world
+	for _, r := range input {
+		switch {
+		case r == '\'':
+			insideQuotes = !insideQuotes
+			builder.WriteRune(r)
+			lastRuneWasSpace = false
+		case unicode.IsSpace(r):
+			if insideQuotes {
+				builder.WriteRune(r)
+			} else {
+				if lastRuneWasSpace {
+					continue
+				} else {
+					builder.WriteRune(r)
+					lastRuneWasSpace = true
+				}
+			}
+		default:
+			builder.WriteRune(r)
+			lastRuneWasSpace = false
+		}
+	}
+	return builder.String()
 }
 
 func execute(primary string, args []string) {
