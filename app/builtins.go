@@ -40,7 +40,7 @@ func Echo(args ...string) {
 
 	if redirectIndex != -1 && redirectIndex+1 < len(args) {
 		filename := args[redirectIndex+1]
-		output := strings.Join(args[:redirectIndex], " ")
+		output := strings.Join(args[:redirectIndex], " ") + "\n"
 		// fmt.Println(filename, output)
 		err := os.WriteFile(filename, []byte(output), 0644)
 		if err != nil {
