@@ -32,7 +32,12 @@ func Type(arg string) {
 
 func Echo(args ...string) {
 	redirectIndex := -1
-	if idx := slices.Index(args, ">"); idx != -1 {
+	isStderrRedirect := false
+
+	if idx := slices.Index(args, "2>"); idx != -1 {
+		redirectIndex = idx
+		isStderrRedirect = true
+	} else if idx := slices.Index(args, ">"); idx != -1 {
 		redirectIndex = idx
 	} else if idx := slices.Index(args, "1>"); idx != -1 {
 		redirectIndex = idx
@@ -46,6 +51,9 @@ func Echo(args ...string) {
 		if err != nil {
 			fmt.Println("Error writing to file:", err)
 			return
+		}
+		if isStderrRedirect {
+			fmt.Print(output)
 		}
 	} else {
 		output := strings.Join(args, " ")
