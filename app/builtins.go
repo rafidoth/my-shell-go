@@ -45,6 +45,6 @@ func Pwd() {
 func Cd(dir string) {
 	err := os.Chdir(dir)
 	if err != nil {
-		fmt.Printf("cd: %v: No such file or directory", dir)
+		fmt.Printf("cd: %v: No such file or directory\n", dir)
 	}
 }
