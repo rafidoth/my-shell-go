@@ -1,19 +1,38 @@
 package main
 
 import (
-	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"unicode"
 )
 
 func extractArguments(wholeCommand string) []string {
-	splitted := strings.Split(singleQuoteHandler(wholeCommand), " ")
-	for i, _ := range splitted {
-		splitted[i] = strings.ReplaceAll(splitted[i], "'", "")
-	}
-
+	splitted := commandParser(singleQuoteHandler(wholeCommand))
 	return splitted
+}
+
+func commandParser(singleQuoteHandledCmd string) []string {
+	// fmt.Println(singleQuoteHandledCmd)
+	var parsed []string
+
+	var builder strings.Builder
+	insideQuotes := false
+	for _, r := range singleQuoteHandledCmd {
+		switch {
+		case r == '\'':
+			insideQuotes = !insideQuotes
+		case unicode.IsSpace(r) && !insideQuotes:
+			parsed = append(parsed, builder.String())
+			builder.Reset()
+		default:
+			builder.WriteRune(r)
+		}
+	}
+	if builder.Len() > 0 {
+		parsed = append(parsed, builder.String())
+	}
+	return parsed
 }
 
 func singleQuoteHandler(wholeCommand string) string {
@@ -54,15 +73,14 @@ func singleQuoteHandler(wholeCommand string) string {
 }
 
 func execute(primary string, args []string) {
-	// _, err := exec.LookPath(primary)
-	// if err == nil {
 	cmd := exec.Command(primary, args...)
-	out, cmdErr := cmd.Output()
-	if cmdErr != nil {
-		fmt.Println("error :", cmdErr)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
 		return
 	}
-	fmt.Print(string(out))
 
 	// fmt.Printf("%v: command not found\n", primary)
 }

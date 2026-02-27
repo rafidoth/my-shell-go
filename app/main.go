@@ -24,6 +24,7 @@ func main() {
 		command = strings.TrimSpace(command)
 		commandWithExtractedArgs := extractArguments(command)
 		// fmt.Println(commandWithExtractedArgs)
+		// fmt.Println(len(commandWithExtractedArgs))
 		primary := commandWithExtractedArgs[0]
 		args := commandWithExtractedArgs[1:]
 
