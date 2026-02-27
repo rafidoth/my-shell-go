@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -79,8 +80,11 @@ func execute(primary string, args []string) {
 
 	err := cmd.Run()
 	if err != nil {
+		_, pathErr := exec.LookPath(primary)
+		if pathErr != nil {
+			fmt.Printf("%v: command not found\n", primary)
+		}
 		return
 	}
 
-	// fmt.Printf("%v: command not found\n", primary)
 }
