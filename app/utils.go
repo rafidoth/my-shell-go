@@ -12,7 +12,7 @@ func extractArguments(wholeCommand string) []string {
 	// s := singleQuoteHandler(wholeCommand)
 	// fmt.Println(s)
 	d := doubleQuoteHandler(wholeCommand)
-	fmt.Println(d)
+	// fmt.Println(d)
 	splitted := commandParser(d)
 	return splitted
 }
