@@ -5,16 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
+
+	"github.com/codecrafters-io/shell-starter-go/app/builtin"
 )
-
-// Ensures gofmt doesn't remove the "fmt" import in stage 1 (feel free to remove this!)
-var _ = fmt.Print
-
-func extractArguments(wholeCommand string) []string {
-	return strings.Split(wholeCommand, " ")
-}
 
 func main() {
 	for {
@@ -37,43 +31,17 @@ func main() {
 		if command == "exit" {
 			break
 		} else if primary == "echo" {
-			fmt.Println(strings.Join(args, " "))
+			builtin.Echo(args...)
 		} else if primary == "type" {
 			if len(args) == 0 {
 				fmt.Println("no arguments")
 				continue
 			}
-			builtins := [...]string{"type", "exit", "echo"}
-			matched := false
-			for _, val := range builtins {
-				if val == args[0] {
-					fmt.Println(args[0], "is a shell builtin")
-					matched = true
-					break
-				}
-			}
-
-			if !matched {
-				path, err := exec.LookPath(args[0])
-				if err == nil {
-					fmt.Println(args[0], "is", path)
-					continue
-				}
-				fmt.Printf("%v: not found\n", args[0])
-			}
+			builtin.Type(args[0])
+		} else if primary == "pwd" {
+			builtin.Pwd()
 		} else {
-			_, err := exec.LookPath(primary)
-			if err == nil {
-				cmd := exec.Command(primary, args...)
-				out, cmdErr := cmd.Output()
-				if cmdErr != nil {
-					fmt.Println("error :", cmdErr)
-					continue
-				}
-				fmt.Print(string(out))
-				continue
-			}
-			fmt.Printf("%v: command not found\n", command)
+			execute(primary, args)
 		}
 	}
 }
