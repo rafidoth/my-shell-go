@@ -66,8 +66,15 @@ func execute(primary string, args []string) {
 	redirectIndex := -1
 	isStderrRedirect := false
 	isStdoutRedirect := false
-
-	if idx := slices.Index(args, "2>"); idx != -1 {
+	isStdoutAppend := false
+	isStderrAppend := false
+	if idx := slices.Index(args, ">>"); idx != -1 {
+		redirectIndex = idx
+		isStdoutAppend = true
+	} else if idx := slices.Index(args, "1>>"); idx != -1 {
+		redirectIndex = idx
+		isStdoutAppend = true
+	} else if idx := slices.Index(args, "2>"); idx != -1 {
 		redirectIndex = idx
 		isStderrRedirect = true
 	} else if idx := slices.Index(args, ">"); idx != -1 {
@@ -84,7 +91,12 @@ func execute(primary string, args []string) {
 	if redirectIndex != -1 && redirectIndex+1 < len(args) {
 		filename := args[redirectIndex+1]
 
-		outFile, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if isStdoutRedirect || isStderrRedirect {
+			outFile, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		} else if isStdoutAppend || isStderrAppend {
+			outFile, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+		}
+
 		if err != nil {
 			fmt.Println("Error opening file:", err)
 			return
@@ -100,9 +112,9 @@ func execute(primary string, args []string) {
 	cmd.Stderr = os.Stderr
 
 	if outFile != nil {
-		if isStdoutRedirect {
+		if isStdoutRedirect || isStdoutAppend {
 			cmd.Stdout = outFile
-		} else if isStderrRedirect {
+		} else if isStderrRedirect || isStderrAppend {
 			cmd.Stderr = outFile
 		}
 	}
