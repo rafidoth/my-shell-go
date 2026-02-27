@@ -63,34 +63,43 @@ func parseCommand(input string) []string {
 }
 
 func execute(primary string, args []string) {
-	gT := slices.Contains(args, ">")
-	gT1 := slices.Contains(args, "1>")
-	if gT || gT1 {
-		var filenameIndex int
-		if gT {
-			filenameIndex = slices.Index(args, ">") + 1
-		} else if gT1 {
-			filenameIndex = slices.Index(args, "1>") + 1
+	redirectIndex := -1
+	if idx := slices.Index(args, ">"); idx != -1 {
+		redirectIndex = idx
+	} else if idx := slices.Index(args, "1>"); idx != -1 {
+		redirectIndex = idx
+	}
+
+	var outFile *os.File
+	var err error
+
+	if redirectIndex != -1 && redirectIndex+1 < len(args) {
+		filename := args[redirectIndex+1]
+
+		outFile, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			fmt.Println("Error opening file:", err)
+			return
 		}
-		if filenameIndex < len(args) {
-			file, err := os.OpenFile(args[filenameIndex], os.O_RDONLY|os.O_CREATE, 0644)
-			if err != nil {
-			}
-			file.Close()
-		}
+		defer outFile.Close()
+
+		args = args[:redirectIndex]
 	}
 
 	cmd := exec.Command(primary, args...)
-	cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
 
-	err := cmd.Run()
-	if err != nil {
-		_, pathErr := exec.LookPath(primary)
-		if pathErr != nil {
+	if outFile != nil {
+		cmd.Stdout = outFile
+	} else {
+		cmd.Stdout = os.Stdout
+	}
+
+	cmd.Stderr = os.Stderr
+
+	if runErr := cmd.Run(); runErr != nil {
+		if _, pathErr := exec.LookPath(primary); pathErr != nil {
 			fmt.Printf("%v: command not found\n", primary)
 		}
 		return
 	}
-
 }
