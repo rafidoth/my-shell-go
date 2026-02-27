@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"slices"
 	"strings"
 )
 
@@ -31,59 +30,24 @@ func Type(arg string) {
 }
 
 func Echo(args ...string) {
-	redirectIndex := -1
-	isStderrRedirect := false
-	isStdoutRedirect := false
-	isStdoutAppend := false
-	isStderrAppend := false
+	redir, args := parseRedirect(args)
+	output := strings.Join(args, " ") + "\n"
 
-	if idx := slices.Index(args, ">>"); idx != -1 {
-		redirectIndex = idx
-		isStdoutAppend = true
-	} else if idx := slices.Index(args, "1>>"); idx != -1 {
-		redirectIndex = idx
-		isStdoutAppend = true
-	} else if idx := slices.Index(args, "2>>"); idx != -1 {
-		redirectIndex = idx
-		isStderrAppend = true
-	} else if idx := slices.Index(args, "2>"); idx != -1 {
-		redirectIndex = idx
-		isStderrRedirect = true
-	} else if idx := slices.Index(args, ">"); idx != -1 {
-		redirectIndex = idx
-		isStdoutRedirect = true
-	} else if idx := slices.Index(args, "1>"); idx != -1 {
-		redirectIndex = idx
-		isStdoutRedirect = true
-	}
-
-	if redirectIndex != -1 && redirectIndex+1 < len(args) {
-		filename := args[redirectIndex+1]
-		output := strings.Join(args[:redirectIndex], " ") + "\n"
-
-		var outFile *os.File
-		var err error
-
-		if isStdoutRedirect || isStderrRedirect {
-			outFile, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-		} else if isStdoutAppend || isStderrAppend {
-			outFile, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
-		}
-
+	if redir != nil {
+		outFile, err := openRedirect(redir)
 		if err != nil {
 			fmt.Println("Error opening file:", err)
 			return
 		}
 		defer outFile.Close()
 
-		if isStdoutRedirect || isStdoutAppend {
+		if redir.Target == RedirectStdout {
 			outFile.WriteString(output)
-		} else if isStderrRedirect || isStderrAppend {
+		} else {
 			fmt.Print(output)
 		}
 	} else {
-		output := strings.Join(args, " ")
-		fmt.Println(output)
+		fmt.Print(output)
 	}
 }
 
