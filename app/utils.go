@@ -49,12 +49,20 @@ func commandParser(quoteHandled string) []string {
 func doubleQuoteHandler(wholeCommand string) string {
 	var builder strings.Builder
 	insideQuotes := false
+	singleQuote := false
+	dobleQuote := false
 	lastRuneWasSpace := false
 	input := strings.TrimSpace(wholeCommand)
 	for _, r := range input {
 		switch {
-		case r == '"':
+		case r == '"' && !singleQuote:
 			insideQuotes = !insideQuotes
+			dobleQuote = !dobleQuote
+			builder.WriteRune(r)
+			lastRuneWasSpace = false
+		case r == '\'' && !dobleQuote:
+			insideQuotes = !insideQuotes
+			singleQuote = !singleQuote
 			builder.WriteRune(r)
 			lastRuneWasSpace = false
 		case unicode.IsSpace(r):
