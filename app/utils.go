@@ -49,7 +49,7 @@ func parseRedirect(args []string) (*Redirect, []string) {
 				Target:   target,
 				Append:   append,
 				Filename: args[idx+1],
-			}, slices.Delete(slices.Delete(slices.Clone(args), idx, idx+2), idx, idx+2)
+			}, args[:idx]
 		}
 	}
 
