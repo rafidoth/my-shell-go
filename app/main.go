@@ -38,9 +38,11 @@ func readRawInput(fd int) string {
 			partial := strProcessor(line)
 			completed := autocomplete(partial)
 			if len(partial) < len(completed) {
+				completed = completed + " "
 				fmt.Print(completed[len(partial):])
 				line = []byte(completed)
 			}
+
 			continue
 		}
 
