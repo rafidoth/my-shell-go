@@ -37,12 +37,14 @@ func readRawInput(fd int) string {
 		if char == '\t' {
 			partial := strProcessor(line)
 			completed := autocomplete(partial)
+			if completed == "" {
+				fmt.Print("\x07")
+			}
 			if len(partial) < len(completed) {
 				completed = completed + " "
 				fmt.Print(completed[len(partial):])
 				line = []byte(completed)
 			}
-
 			continue
 		}
 
@@ -114,6 +116,5 @@ func main() {
 		} else {
 			execute(primary, args)
 		}
-		// fmt.Println(command)
 	}
 }
