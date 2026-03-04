@@ -36,7 +36,11 @@ func readRawInput(fd int) string {
 
 		if char == '\t' {
 			partial := strProcessor(line)
-			completed := autocomplete(partial)
+			completed, err := autocomplete(partial)
+			if err != nil {
+				fmt.Print(err)
+				return ""
+			}
 			if completed == "" {
 				fmt.Print("\x07")
 			}
@@ -69,16 +73,6 @@ func readRawInput(fd int) string {
 	cmdString := string(line)
 	command := strings.TrimSpace(cmdString)
 	return command
-}
-
-func autocomplete(partial string) string {
-	builtins := []string{"echo", "exit"}
-	for _, str := range builtins {
-		if strings.HasPrefix(str, partial) {
-			return str
-		}
-	}
-	return ""
 }
 
 func main() {
