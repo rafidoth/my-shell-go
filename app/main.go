@@ -59,7 +59,7 @@ func readRawInput(fd int) string {
 			} else if len(completed) == 1 && len(partial) < len(completed[0]) {
 				// single match
 				final := completed[0] + " "
-				fmt.Print(completed[0][len(partial):])
+				fmt.Print(completed[0][len(final):])
 				line = []byte(final)
 			}
 			continue
