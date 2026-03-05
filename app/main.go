@@ -58,7 +58,13 @@ func readRawInput(fd int) string {
 				fmt.Print(err)
 				return ""
 			}
-			if len(completed) > 1 && doubleMatchBell {
+
+			if len(completed) == 1 && len(partial) < len(completed[0]) {
+				// single match
+				final := completed[0] + " "
+				fmt.Print(final[len(partial):])
+				line = []byte(final)
+			} else if len(completed) > 1 && doubleMatchBell {
 				// multiple match Second or Greater Tab Press
 				fmt.Print("\r\n")
 				sort.Strings(completed)
@@ -67,22 +73,23 @@ func readRawInput(fd int) string {
 				}
 				fmt.Print("\r\n$ ", string(line))
 			} else if len(completed) > 1 && !doubleMatchBell {
-				// multiple match First Tab Press
+				// multiple match Tab Press when there is still prefix match can be possible
 				fmt.Print("\x07")
 				lcp := getLongestCommonPrefix(completed)
 				if lcp != "" && len(lcp) > len(partial) {
 					fmt.Print(lcp[len(partial):])
 					line = []byte(lcp)
+				} else {
+					fmt.Print("\r\n")
+					sort.Strings(completed)
+					for _, sug := range completed {
+						fmt.Printf("%v  ", sug)
+					}
+					fmt.Print("\r\n$ ", string(line))
 				}
-				doubleMatchBell = true
 			} else if len(completed) == 0 {
 				// no match
 				fmt.Print("\x07")
-			} else if len(completed) == 1 && len(partial) < len(completed[0]) {
-				// single match
-				final := completed[0] + " "
-				fmt.Print(final[len(partial):])
-				line = []byte(final)
 			}
 			continue
 		}

@@ -9,6 +9,7 @@ import (
 
 func searchExecutables(partialEx string) ([]string, error) {
 	var matched []string
+	taken := make(map[string]bool)
 	pathEnv := os.Getenv("PATH")
 	if pathEnv == "" {
 		return nil, fmt.Errorf("PATH environment variable is empty.\n")
@@ -36,7 +37,10 @@ func searchExecutables(partialEx string) ([]string, error) {
 
 			if info.Mode().IsRegular() && info.Mode()&0111 != 0 {
 				if strings.HasPrefix(entry.Name(), partialEx) {
-					matched = append(matched, entry.Name())
+					if !taken[entry.Name()] {
+						matched = append(matched, entry.Name())
+						taken[entry.Name()] = true
+					}
 				}
 			}
 		}
@@ -60,4 +64,3 @@ func autocomplete(partial string) ([]string, error) {
 	}
 	return matches, nil
 }
-
