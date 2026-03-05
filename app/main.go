@@ -20,7 +20,7 @@ func getLongestCommonPrefix(strs []string) string {
 	res := ""
 	for idx, r := range strs[0] {
 		for _, str := range strs {
-			if r != rune(str[idx]) {
+			if idx >= len(str) || r != rune(str[idx]) {
 				return res
 			}
 		}
