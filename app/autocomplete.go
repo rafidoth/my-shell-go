@@ -7,10 +7,11 @@ import (
 	"strings"
 )
 
-func searchExecutables(partialEx string) (string, error) {
+func searchExecutables(partialEx string) ([]string, error) {
+	var matched []string
 	pathEnv := os.Getenv("PATH")
 	if pathEnv == "" {
-		return "", fmt.Errorf("PATH environment variable is empty.\n")
+		return nil, fmt.Errorf("PATH environment variable is empty.\n")
 	}
 
 	directories := filepath.SplitList(pathEnv)
@@ -35,30 +36,28 @@ func searchExecutables(partialEx string) (string, error) {
 
 			if info.Mode().IsRegular() && info.Mode()&0111 != 0 {
 				if strings.HasPrefix(entry.Name(), partialEx) {
-					return entry.Name(), nil
+					matched = append(matched, entry.Name())
 				}
 			}
 		}
 	}
-	return "", nil
+	return matched, nil
 }
 
-func autocomplete(partial string) (string, error) {
-	complete, err := searchExecutables(partial)
+func autocomplete(partial string) ([]string, error) {
+	matches, err := searchExecutables(partial)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	if complete != "" {
-		return complete, nil
-	}
-
-	builtins := []string{"echo", "exit"}
-	for _, str := range builtins {
-		if strings.HasPrefix(str, partial) {
-			return str, nil
+	if len(matches) == 0 {
+		builtins := []string{"echo", "exit"}
+		for _, str := range builtins {
+			if strings.HasPrefix(str, partial) {
+				matches = append(matches, str)
+			}
 		}
 	}
-	return "", nil
+	return matches, nil
 }
 

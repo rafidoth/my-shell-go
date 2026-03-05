@@ -21,7 +21,7 @@ func readRawInput(fd int) string {
 
 	var line []byte
 	buf := make([]byte, 1)
-
+	doubleMatchBell := false
 	for {
 		n, err := os.Stdin.Read(buf)
 		if err != nil || n == 0 {
@@ -41,13 +41,26 @@ func readRawInput(fd int) string {
 				fmt.Print(err)
 				return ""
 			}
-			if completed == "" {
+			if len(completed) > 1 && doubleMatchBell {
+				// multiple match Second or Greater Tab Press
+				fmt.Print("\r\n")
+				for _, sug := range completed {
+					fmt.Printf("%v  ", sug)
+				}
+				fmt.Print("\r\n$ ", string(line))
+
+			} else if len(completed) > 1 && !doubleMatchBell {
+				// multiple match First Tab Press
 				fmt.Print("\x07")
-			}
-			if len(partial) < len(completed) {
-				completed = completed + " "
-				fmt.Print(completed[len(partial):])
-				line = []byte(completed)
+				doubleMatchBell = true
+			} else if len(completed) == 0 {
+				// no match
+				fmt.Print("\x07")
+			} else if len(completed) == 1 && len(partial) < len(completed[0]) {
+				// single match
+				final := completed[0] + " "
+				fmt.Print(completed[0][len(partial):])
+				line = []byte(final)
 			}
 			continue
 		}
