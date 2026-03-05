@@ -17,23 +17,16 @@ func handleTabPress(line []byte, doubleMatch bool) ([]byte, bool) {
 		return line, doubleMatch
 	}
 
+	// single completion exists
 	if len(completed) == 1 && len(partial) < len(completed[0]) {
 		final := completed[0] + " "
 		fmt.Print(final[len(partial):])
 		return []byte(final), doubleMatch
 	}
 
-	if len(completed) > 1 && doubleMatch {
-		fmt.Print("\r\n")
-		sort.Strings(completed)
-		for _, sug := range completed {
-			fmt.Printf("%v  ", sug)
-		}
-		fmt.Print("\r\n$ ", string(line))
-		return line, doubleMatch
-	}
-
-	if len(completed) > 1 && !doubleMatch {
+	// multiple completions exists
+	// and no longest prefix
+	if len(completed) > 1 {
 		fmt.Print("\x07")
 		lcp := getLongestCommonPrefix(completed)
 		if lcp != "" && len(lcp) > len(partial) {
