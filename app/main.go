@@ -13,6 +13,22 @@ func strProcessor(line []byte) string {
 	return strings.TrimSpace(string(line))
 }
 
+func getLongestCommonPrefix(strs []string) string {
+	if len(strs) < 1 {
+		return ""
+	}
+	res := ""
+	for idx, r := range strs[0] {
+		for _, str := range strs {
+			if r != rune(str[idx]) {
+				return res
+			}
+		}
+		res = res + string(r)
+	}
+	return res
+}
+
 func readRawInput(fd int) string {
 	oldState, err := term.MakeRaw(fd)
 	if err != nil {
@@ -53,6 +69,11 @@ func readRawInput(fd int) string {
 			} else if len(completed) > 1 && !doubleMatchBell {
 				// multiple match First Tab Press
 				fmt.Print("\x07")
+				lcp := getLongestCommonPrefix(completed)
+				if lcp != "" && len(lcp) > len(partial) {
+					fmt.Print(lcp[len(partial):])
+					line = []byte(lcp)
+				}
 				doubleMatchBell = true
 			} else if len(completed) == 0 {
 				// no match
