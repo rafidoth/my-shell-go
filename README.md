@@ -1,34 +1,15 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/5b865400-a102-44ae-964d-94331b8a617f)](https://app.codecrafters.io/users/rafidoth?r=2qF)
+# My own written shell in Go
 
-This is a starting point for Go solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+## Features I've Implemented
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
-
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
-
-# Passing the first stage
-
-The entry point for your `shell` implementation is in `app/main.go`. Study and
-uncomment the relevant code, then run the command below to execute the tests on
-our servers:
-
-```sh
-codecrafters submit
-```
-
-Time to move on to the next stage!
-
-# Stage 2 & beyond
-
-Note: This section is for stages 2 and beyond.
-
-1. Ensure you have `go (1.25)` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `app/main.go`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+- **REPL loop** - Interactive prompt that reads, evaluates, and loops
+- **Raw terminal input** - Character-by-character reading with raw mode for real-time key handling
+- **Builtin commands** - `echo`, `pwd`, `cd`, `type`, `exit`
+- **External command execution** - Runs executables found in `PATH`
+- **Command parsing** - Supports single quotes, double quotes, and backslash escaping
+- **Tab autocompletion** - Completes builtins and PATH executables from partial input
+- **Multi-match completion** - Shows all candidates on tab when multiple matches exist, with longest common prefix fill
+- **Bell character** - Rings terminal bell on ambiguous or no match
+- **Stdout/Stderr redirection** - Supports `>`, `1>`, `2>`, `>>`, `1>>`, `2>>` to redirect output to files
+- **Backspace handling** - Proper terminal backspace with cursor cleanup
+- **Ctrl+C handling** - Graceful interrupt signal handling
