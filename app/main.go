@@ -50,7 +50,6 @@ func readRawInput(fd int) string {
 					fmt.Printf("%v  ", sug)
 				}
 				fmt.Print("\r\n$ ", string(line))
-
 			} else if len(completed) > 1 && !doubleMatchBell {
 				// multiple match First Tab Press
 				fmt.Print("\x07")
@@ -61,7 +60,7 @@ func readRawInput(fd int) string {
 			} else if len(completed) == 1 && len(partial) < len(completed[0]) {
 				// single match
 				final := completed[0] + " "
-				fmt.Print(completed[0][len(final):])
+				fmt.Print(final[len(partial):])
 				line = []byte(final)
 			}
 			continue
