@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"golang.org/x/term"
@@ -44,6 +45,7 @@ func readRawInput(fd int) string {
 			if len(completed) > 1 && doubleMatchBell {
 				// multiple match Second or Greater Tab Press
 				fmt.Print("\r\n")
+				sort.Strings(completed)
 				for _, sug := range completed {
 					fmt.Printf("%v  ", sug)
 				}
